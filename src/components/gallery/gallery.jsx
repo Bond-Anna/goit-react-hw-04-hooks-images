@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import css from './gallery.module.css';
 import { ImageGalleryItem } from '../galleryItem/galleryItem';
 export const ImageGallery = ({ pictures, onSelect }) => {
@@ -13,4 +14,15 @@ export const ImageGallery = ({ pictures, onSelect }) => {
       ))}
     </ul>
   );
+};
+
+ImageGallery.propTypes = {
+  pictures: PropTypes.arrayOf(
+    PropTypes.exact({
+      id: PropTypes.number.isRequired,
+      webformatURL: PropTypes.string.isRequired,
+      largeImageURL: PropTypes.string.isRequired,
+    }),
+  ),
+  onSelect: PropTypes.func,
 };

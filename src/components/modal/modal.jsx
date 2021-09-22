@@ -1,4 +1,5 @@
 import { useEffect, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import css from './modal.module.css';
 export const Modal = ({ selectedPicture, onCloseModal }) => {
   const handleKeyDown = useCallback(
@@ -38,4 +39,9 @@ export const Modal = ({ selectedPicture, onCloseModal }) => {
       </div>
     </div>
   );
+};
+
+Modal.propTypes = {
+  selectedPicture: PropTypes.string.isRequired,
+  onCloseModal: PropTypes.func.isRequired,
 };

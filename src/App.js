@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Searchbar } from './components/searchbar/Searchbar.jsx';
-import { Fetch } from './components/services.jsx';
+import { ImgsAPI } from './components/services.jsx';
 import { ImageGallery } from './components/gallery/gallery';
 import { Spinner } from './components/Spinner/spinner';
 import { Modal } from './components/modal/modal';
@@ -16,7 +16,10 @@ export const App = () => {
 
   useEffect(() => {
     setLoading(true);
-    Fetch({ name, page })
+    if (name === '') {
+      return;
+    }
+    ImgsAPI({ name, page })
       .then(({ hits }) => {
         if (hits.length > 0) {
           setPictures(prevPictures => [...prevPictures, ...hits]);

@@ -1,4 +1,6 @@
-export const Fetch = ({ name, page }) => {
+import PropTypes from 'prop-types';
+
+export const ImgsAPI = ({ name, page }) => {
   const URL = 'https://pixabay.com/api/';
   const API_KEY = '22720619-487e18f692264a9911b958ddb';
   return fetch(
@@ -9,4 +11,9 @@ export const Fetch = ({ name, page }) => {
     }
     return response.json();
   });
+};
+
+ImgsAPI.propTypes = {
+  name: PropTypes.string.isRequired,
+  page: PropTypes.number.isRequired,
 };
