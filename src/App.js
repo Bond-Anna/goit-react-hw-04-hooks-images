@@ -1,87 +1,75 @@
-import { Component } from 'react';
+import { useEffect, useState } from 'react';
 import { Searchbar } from './components/searchbar/Searchbar.jsx';
 import { Fetch } from './components/services.jsx';
 import { ImageGallery } from './components/gallery/gallery';
 import { Spinner } from './components/Spinner/spinner';
 import { Modal } from './components/modal/modal';
 
-export class App extends Component {
-  state = {
-    name: '',
-    page: 1,
-    pictures: [],
-    selectedImg: null,
-    loading: false,
-    error: false,
-    showModal: false,
-  };
+export const App = () => {
+  const [name, setName] = useState('');
+  const [page, setPage] = useState(1);
+  const [pictures, setPictures] = useState([]);
+  const [selectedImg, setSelectedImg] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
-  componentDidUpdate(prevProps, prevState) {
-    const { name, page } = this.state;
+  useEffect(() => {
+    setLoading(true);
+    Fetch({ name, page })
+      .then(({ hits }) => {
+        if (hits.length > 0) {
+          setPictures(prevPictures => [...prevPictures, ...hits]);
+          setError(false);
+        } else {
+          setError(true);
+        }
+      })
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
 
-    if (prevState.name !== name || prevState.page !== page) {
-      this.setState({ loading: true });
-      Fetch({ name, page })
-        .then(({ hits }) => {
-          if (hits.length > 0) {
-            this.setState(prevState => ({
-              pictures: [...prevState.pictures, ...hits],
-              error: false,
-            }));
-          } else {
-            this.setState({ error: true });
-          }
-        })
-        .catch(() => this.setState({ error: true }))
-        .finally(() => this.setState({ loading: false }));
-    }
     if (page !== 1) {
       window.scrollTo({
         top: document.documentElement.scrollHeight,
         behavior: 'smooth',
       });
     }
-  }
+  }, [name, page]);
 
-  handleSearchbarSubmit = name => {
-    this.setState({ name, pictures: [], page: 1 });
-  };
-  handleLoadMoreClick = () => {
-    this.setState(prevState => ({ page: prevState.page + 1 }));
-  };
-  toggleModal = () => {
-    this.setState(prevState => ({ showModal: !prevState.showModal }));
-  };
-  handleSelectImg = selectedImg => {
-    this.setState({ selectedImg, showModal: true });
+  const handleSearchbarSubmit = name => {
+    setName(name);
+    setPictures([]);
+    setPage(1);
   };
 
-  render() {
-    const { pictures, loading, error, name, selectedImg } = this.state;
+  const handleSelectImg = selectedImg => {
+    setSelectedImg(selectedImg);
+    setShowModal(true);
+  };
 
-    return (
-      <div className="App">
-        <Searchbar onSubmit={this.handleSearchbarSubmit} />
-        {error && <h1 className="error">There are no {name} pictures :( </h1>}
-        {loading && <Spinner />}
+  const handleLoadMoreClick = () => {
+    setPage(prevPage => prevPage + 1);
+  };
 
-        <ImageGallery pictures={pictures} onSelect={this.handleSelectImg} />
-        {pictures.length > 0 && (
-          <button
-            type="button"
-            className="Button"
-            onClick={this.handleLoadMoreClick}
-          >
-            Load more
-          </button>
-        )}
-        {this.state.showModal && (
-          <Modal
-            selectedPicture={selectedImg}
-            onCloseModal={this.toggleModal}
-          />
-        )}
-      </div>
-    );
-  }
-}
+  const toggleModal = () => {
+    setShowModal(prevShowModal => !prevShowModal);
+  };
+
+  return (
+    <div className="App">
+      <Searchbar onSubmit={handleSearchbarSubmit} />
+      {error && <h1 className="error">There are no {name} pictures :( </h1>}
+      {loading && <Spinner />}
+
+      <ImageGallery pictures={pictures} onSelect={handleSelectImg} />
+      {pictures.length > 0 && (
+        <button type="button" className="Button" onClick={handleLoadMoreClick}>
+          Load more
+        </button>
+      )}
+      {showModal && (
+        <Modal selectedPicture={selectedImg} onCloseModal={toggleModal} />
+      )}
+    </div>
+  );
+};
